@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhangkaihang.senior1.week1.dao.GoodsMapper">
+	<resultMap type="Goods" id="gMap">
+		<id column="gid" property="gid" />
+		<result column="gname" property="gname"/>
+		<result column="datea" property="datea"/>
+		<result column="price" property="price"/>
+		<result column="status" property="status"/>
+		<association property="brands" javaType="Brands">
+			<id column="bid" property="bid" />
+			<result column="bname" property="bname"/>
+		</association>
+		<association property="kinds" javaType="Kinds">
+			<id column="kid" property="kid" />
+			<result column="kname" property="kname"/>
+		</association>
+	</resultMap>
+	<!-- 列表+模糊 -->
+	<select id="selects" resultMap="gMap">
+		select * from tb_goods a left join tb_brand b on a.bid=b.bid left join 
+		tb_goodskind c on a.kid = c.kid 
+		<where>
+			<if test="null!=gname and gname!=''">
+				and a.gname like '%${gname}%' 
+			</if>
+			and a.status=0
+		</where>
+	</select>
+	<!-- 商品详情 -->
+	<select id="select" resultType="Goods">
+		select * from tb_goods a left join tb_brand b on a.bid=b.bid
+		left join tb_goodskind c on a.kid = c.kid where a.gid=#{gid}
+	</select>
+	<!-- 查询所有的品牌 -->
+	<select id="getBrandsList" resultType="Brands">
+		select * from tb_brand
+	</select>
+	<!-- 查询所有的种类 -->
+	<select id="getKindsList" resultType="Kinds">
+		select * from tb_goodskind
+	</select>
+	<!-- 添加 -->
+	<insert id="add">
+		insert into tb_goods set gname=#{gname},datea=#{datea},
+		price=#{price},status=#{status},bid=#{brands.bid},
+		kid=#{kinds.kid}
+	</insert>
+	<!-- 修改 -->
+	<update id="upd">
+		update tb_goods set gname=#{gname},datea=#{datea},
+		price=#{price},status=#{status},bid=#{brands.bid},
+		kid=#{kinds.kid} where gid=#{gid}
+	</update>
+	<!-- 修改状态 -->
+	<update id="updstatus">
+		update tb_goods set status=1 where gid in(${gid})
+	</update>
+	
+</mapper>
+
